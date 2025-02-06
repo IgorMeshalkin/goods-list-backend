@@ -1,5 +1,5 @@
 import { Entity, Column } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { BaseEntity } from '../base.entity';
 
 @Entity()
 export class Good extends BaseEntity {
@@ -18,6 +18,6 @@ export class Good extends BaseEntity {
     @Column({ unique: true })
     article : string;
 
-    @Column()
-    image : string;
+    @Column({ type: 'varchar', nullable: true })
+    image?: string;
 }

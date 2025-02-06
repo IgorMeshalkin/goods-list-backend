@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 /**
- * объединяет в себе общие для всех сущностей поля
+ * common entity fields
  */
 export abstract class BaseEntity extends TypeOrmBaseEntity {
     @PrimaryGeneratedColumn('uuid')
