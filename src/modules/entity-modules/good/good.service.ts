@@ -50,6 +50,9 @@ export class GoodService {
             );
         }
 
+        // excludes deleted goods
+        query = query.andWhere('"good"."is_deleted" = false');
+
         // executes query and returns result
         return query.getMany();
     }
@@ -58,7 +61,7 @@ export class GoodService {
      * returns good by uuid or null
      */
     async findByUuid(uuid: string): Promise<Good | null> {
-        return await this.goodRepository.findOneBy({ uuid });
+        return await this.goodRepository.findOneBy({ uuid, isDeleted: false });
     }
 
     /**
@@ -105,6 +108,25 @@ export class GoodService {
 
         // saves updates to database
         return this.goodRepository.save(existedGood);
+    }
+
+    /**
+     * deletes good
+     */
+    async delete(paramsUuid: string): Promise<void> {
+        // gets deletable good from database to check
+        const existedGood = await this.goodRepository.findOne({ where: { uuid: paramsUuid } });
+
+        // checks exists deletable good
+        if (!existedGood) {
+            throw new NotFoundException(`Good with uuid: ${paramsUuid} does not exist`);
+        }
+
+        // mark good as deleted
+        existedGood.isDeleted = true;
+
+        // saves updates to database
+        await this.goodRepository.save(existedGood);
     }
 
     /**

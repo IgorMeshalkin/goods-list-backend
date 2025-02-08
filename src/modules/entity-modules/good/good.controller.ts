@@ -1,12 +1,12 @@
 import {
     BadRequestException,
     Body,
-    Controller,
+    Controller, Delete,
     Get,
     InternalServerErrorException,
     NotFoundException,
     Param,
-    Post,
+    Post, Put,
     Query,
     UploadedFile,
     UseInterceptors
@@ -67,7 +67,7 @@ export class GoodController {
         }
     }
 
-    @Post(':uuid')
+    @Put(':uuid')
     @UseInterceptors(FileInterceptor('image'))
     async update(
         @Body() goodDto: GoodDto,
@@ -77,6 +77,18 @@ export class GoodController {
         try {
             const updatedGood = await this.goodService.update(goodDto, uuid, file);
             return plainToInstance(GoodDto, updatedGood, {excludeExtraneousValues: true});
+        } catch (err) {
+            console.error(err);
+            throw err;
+        }
+    }
+
+    @Delete(':uuid')
+    async delete(
+        @Param('uuid') uuid: string,
+    ): Promise<void> {
+        try {
+            await this.goodService.delete(uuid);
         } catch (err) {
             console.error(err);
             throw err;
