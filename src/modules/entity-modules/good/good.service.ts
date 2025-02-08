@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
 import {Good} from "../../../entities/good/good.entity";
@@ -19,6 +19,9 @@ export class GoodService {
      * returns list of goods
      */
     async findMany(limit: number, offset: number, sort: string, minPrice: number, maxPrice: number): Promise<Good[]> {
+        // validates parameters before create query
+        this.validateQueryParameters(limit, offset, sort, minPrice, maxPrice)
+
         // determines sort direction for database query
         const sortDirection = sort.startsWith('up') ? 'ASC' : 'DESC';
 
@@ -52,6 +55,13 @@ export class GoodService {
     }
 
     /**
+     * returns good by uuid or null
+     */
+    async findByUuid(uuid: string): Promise<Good | null> {
+        return await this.goodRepository.findOneBy({ uuid });
+    }
+
+    /**
      * creates new good file
      */
     async create(goodDto: GoodDto, file: Express.Multer.File | null): Promise<Good> {
@@ -65,5 +75,55 @@ export class GoodService {
 
         // saves good to database
         return this.goodRepository.save(newGood);
+    }
+
+    /**
+     * validates query parameters before execute query
+     */
+    private validateQueryParameters = (limit: number, offset: number, sort: string, minPrice: number, maxPrice: number) => {
+        // checks limit is not NaN
+        if (isNaN(limit)) {
+            throw new BadRequestException('limit must be valid number.');
+        }
+
+        // checks limit is positive number
+        if (limit <= 0) {
+            throw new BadRequestException('limit must be positive number.');
+        }
+
+        // checks offset is not NaN
+        if (isNaN(offset)) {
+            throw new BadRequestException('offset must be valid number.');
+        }
+
+        // checks offset is positive number or zero
+        if (offset < 0) {
+            throw new BadRequestException('offset must be positive number or zero.');
+        }
+
+        // checks sort string
+        if (!/^(up|down)_/.test(sort)) {
+            throw new BadRequestException('sort must start with "up" or "down".');
+        }
+
+        // checks minPrice is not NaN
+        if (isNaN(minPrice)) {
+            throw new BadRequestException('minPrice must be valid number.');
+        }
+
+        // checks maxPrice is not NaN
+        if (isNaN(maxPrice)) {
+            throw new BadRequestException('maxPrice must be valid number.');
+        }
+
+        // checks minPrice is positive number or zero
+        if (minPrice < 0) {
+            throw new BadRequestException('minPrice must be positive number or zero.');
+        }
+
+        // checks minPrice less than maxPrice
+        if (minPrice >= maxPrice) {
+            throw new BadRequestException('minPrice must be less than maxPrice');
+        }
     }
 }
