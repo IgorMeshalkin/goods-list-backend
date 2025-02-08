@@ -34,10 +34,7 @@ export class GoodController {
             return rawGoodList.map(rawItem => plainToInstance(GoodDto, rawItem, {excludeExtraneousValues: true}));
         } catch (err) {
             console.error(err);
-            if (err instanceof BadRequestException) {
-                throw err;
-            }
-            throw new InternalServerErrorException('Failed to fetch good');
+            throw err;
         }
     }
 
@@ -51,10 +48,7 @@ export class GoodController {
             return plainToInstance(GoodDto, foundedGood, {excludeExtraneousValues: true});
         } catch (err) {
             console.error(err);
-            if (err instanceof NotFoundException) {
-                throw err;
-            }
-            throw new InternalServerErrorException('Failed to fetch good');
+            throw err;
         }
     }
 
@@ -69,7 +63,23 @@ export class GoodController {
             return plainToInstance(GoodDto, createdGood, {excludeExtraneousValues: true});
         } catch (err) {
             console.error(err);
-            throw new InternalServerErrorException('Failed to create good');
+            throw err;
+        }
+    }
+
+    @Post(':uuid')
+    @UseInterceptors(FileInterceptor('image'))
+    async update(
+        @Body() goodDto: GoodDto,
+        @Param('uuid') uuid: string,
+        @UploadedFile() file: Express.Multer.File,
+    ): Promise<GoodDto> {
+        try {
+            const updatedGood = await this.goodService.update(goodDto, uuid, file);
+            return plainToInstance(GoodDto, updatedGood, {excludeExtraneousValues: true});
+        } catch (err) {
+            console.error(err);
+            throw err;
         }
     }
 }

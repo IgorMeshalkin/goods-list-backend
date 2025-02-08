@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
 import {Good} from "../../../entities/good/good.entity";
@@ -62,7 +62,7 @@ export class GoodService {
     }
 
     /**
-     * creates new good file
+     * creates new good
      */
     async create(goodDto: GoodDto, file: Express.Multer.File | null): Promise<Good> {
         // creates new typeorm entity good
@@ -75,6 +75,36 @@ export class GoodService {
 
         // saves good to database
         return this.goodRepository.save(newGood);
+    }
+
+    /**
+     * updates existed good
+     */
+    async update(goodDto: GoodDto, paramsUuid: string, file: Express.Multer.File | null): Promise<Good> {
+        // gets updatable good from database to check
+        const existedGood = await this.goodRepository.findOne({ where: { uuid: paramsUuid } });
+
+        // checks exists updatable good
+        if (!existedGood) {
+            throw new NotFoundException(`Good with uuid: ${paramsUuid} does not exist`);
+        }
+
+        // tries to delete updatable good's image if it needs
+        if (existedGood.image && file) {
+            await this.fileService.deleteImage(existedGood.image);
+        }
+
+        // tries to save new image for updatable good if it needs
+        if (file) {
+            existedGood.image = await this.fileService.saveImage(file);
+        }
+
+        // puts new values to good object for update
+        const { uuid,image, ...updatedGoodDto } = goodDto;
+        Object.assign(existedGood, updatedGoodDto);
+
+        // saves updates to database
+        return this.goodRepository.save(existedGood);
     }
 
     /**

@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable, InternalServerErrorException} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -27,12 +27,31 @@ export class FileService {
         const fileName = `img__${originalNameArray[0]}__${Date.now()}.${originalNameArray[1]}`;
         const uploadPath = path.join(FileService.uploadDir, fileName);
 
-        // saves file to upload directory
+        // tries to save file to upload directory
         try {
             fs.writeFileSync(uploadPath, file.buffer);
             return fileName;
         } catch (error) {
-            throw new Error('Error while saving file');
+            throw new InternalServerErrorException('Error while saving file');
+        }
+    }
+
+    /**
+     * deletes image file by filename
+     */
+    async deleteImage(fileName: string): Promise<void> {
+        const filePath = path.join(FileService.uploadDir, fileName);
+
+        // checks if file exists before attempting to delete
+        if (!fs.existsSync(filePath)) {
+            throw new BadRequestException(`File ${fileName} not found.`);
+        }
+
+        // tries to delete the file
+        try {
+            fs.unlinkSync(filePath);
+        } catch (error) {
+            throw new InternalServerErrorException('Error while deleting file');
         }
     }
 
