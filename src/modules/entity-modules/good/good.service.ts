@@ -18,17 +18,37 @@ export class GoodService {
     /**
      * returns list of goods
      */
-    async findAll(limit: number, offset: number, sort: string): Promise<Good[]> {
+    async findMany(limit: number, offset: number, sort: string, minPrice: number, maxPrice: number): Promise<Good[]> {
+        // determines sort direction for database query
         const sortDirection = sort.startsWith('up') ? 'ASC' : 'DESC';
 
-        return this.goodRepository.createQueryBuilder('good')
+        // creates query
+        let query = this.goodRepository.createQueryBuilder('good')
             .take(limit)
             .skip(offset)
             .orderBy(
                 `CASE WHEN "good"."discounted_price" IS NOT NULL THEN "good"."discounted_price" ELSE "good"."price" END`,
                 sortDirection
-            )
-            .getMany();
+            );
+
+        // adds minPrice parameter to query
+        if (minPrice) {
+            query = query.andWhere(
+                `CASE WHEN "good"."discounted_price" IS NOT NULL THEN "good"."discounted_price" ELSE "good"."price" END >= :minPrice`,
+                { minPrice }
+            );
+        }
+
+        // adds maxPrice parameter to query
+        if (maxPrice) {
+            query = query.andWhere(
+                `CASE WHEN "good"."discounted_price" IS NOT NULL THEN "good"."discounted_price" ELSE "good"."price" END <= :maxPrice`,
+                { maxPrice }
+            );
+        }
+
+        // executes query and returns result
+        return query.getMany();
     }
 
     /**

@@ -10,13 +10,15 @@ export class GoodController {
     }
 
     @Get()
-    async findAll(
+    async findMany(
         @Query('limit') limit: number = 10,
         @Query('offset') offset: number = 0,
         @Query('sort') sort: string = 'up_price',
+        @Query('minPrice') minPrice: number = 0,  // Дефолтное значение 0
+        @Query('maxPrice') maxPrice: number = Infinity  // Дефолтное значение бесконечность
     ): Promise<GoodDto[]> {
         try {
-            const rawGoodList = await this.goodService.findAll(limit, offset, sort);
+            const rawGoodList = await this.goodService.findMany(limit, offset, sort, minPrice, maxPrice);
             return rawGoodList.map(rawItem => plainToInstance(GoodDto, rawItem, {excludeExtraneousValues: true}));
         } catch (err) {
             console.error(err);
