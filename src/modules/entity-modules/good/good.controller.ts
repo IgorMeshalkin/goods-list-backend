@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post, UploadedFile, UseInterceptors} from '@nestjs/common';
+import {Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors} from '@nestjs/common';
 import {GoodService} from "./good.service";
 import {GoodDto} from "../../../entities/good/good.dto";
 import {plainToInstance} from "class-transformer";
@@ -10,9 +10,13 @@ export class GoodController {
     }
 
     @Get()
-    async findAll(): Promise<GoodDto[]> {
+    async findAll(
+        @Query('limit') limit: number = 10,
+        @Query('offset') offset: number = 0,
+        @Query('sort') sort: string = 'up_price',
+    ): Promise<GoodDto[]> {
         try {
-            const rawGoodList = await this.goodService.findAll();
+            const rawGoodList = await this.goodService.findAll(limit, offset, sort);
             return rawGoodList.map(rawItem => plainToInstance(GoodDto, rawItem, {excludeExtraneousValues: true}));
         } catch (err) {
             console.error(err);

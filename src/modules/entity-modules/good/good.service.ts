@@ -18,8 +18,17 @@ export class GoodService {
     /**
      * returns list of goods
      */
-    async findAll(): Promise<Good[]> {
-        return this.goodRepository.find();
+    async findAll(limit: number, offset: number, sort: string): Promise<Good[]> {
+        const sortDirection = sort.startsWith('up') ? 'ASC' : 'DESC';
+
+        return this.goodRepository.createQueryBuilder('good')
+            .take(limit)
+            .skip(offset)
+            .orderBy(
+                `CASE WHEN "good"."discounted_price" IS NOT NULL THEN "good"."discounted_price" ELSE "good"."price" END`,
+                sortDirection
+            )
+            .getMany();
     }
 
     /**
