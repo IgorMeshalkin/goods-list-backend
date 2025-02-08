@@ -11,12 +11,26 @@
 Все товары имеют обязательное поле price и необязательное discountedPrice, при фильтрации и сортировке работа с ценой всегда ведётся по discountedPrice если она указана, а если нет то по price <br>
 То есть используется всегда минимальная доступная для пользователя цена <br>
  <br>
+
+## Технологии
+- TypeScript
+- Node.js
+- Nest.js
+- TypeORM
+- PostgreSQL
+- Docker
+- Docker Compose
  
 ## Запуск
 
-Для запуска проекта необходимо выполнить команду:
+Я осознанно оставил .env в репозитории. <br>
+Для запуска проекта надо только выполнить команду:
+```bash
 docker-compose up --build
+```
+при условии, что Docker и Docker Compose уже установлены на вашем компьютере.
 
-git remote add origin https://github.com/IgorMeshalkin/test_game_ts.git
-git branch -M main
-git push -u origin main
+## Контакты
+Свзязаться со мной можно в Telegram:<br>
+@IgorMeshalkin
+
