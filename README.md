@@ -18,7 +18,7 @@
 ## Технологии
 - TypeScript
 - Node.js
-- NestjS
+- NestJS
 - TypeORM
 - PostgreSQL
 - Docker
