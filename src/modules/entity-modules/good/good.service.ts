@@ -58,6 +58,14 @@ export class GoodService {
     }
 
     /**
+     * returns total pages count for pagination
+     */
+    async getPagesCount(limit:number): Promise<number> {
+        const totalCount = await this.goodRepository.count({where: {isDeleted: false}});
+        return Math.ceil(totalCount / limit);
+    }
+
+    /**
      * returns good by uuid or null
      */
     async findByUuid(uuid: string): Promise<Good | null> {

@@ -15,6 +15,7 @@ import {GoodService} from "./good.service";
 import {GoodDto} from "../../../entities/good/good.dto";
 import {plainToInstance} from "class-transformer";
 import {FileInterceptor} from "@nestjs/platform-express";
+import {TGoodsResponse} from "../../../types/goods_response_type";
 
 @Controller('goods')
 export class GoodController {
@@ -28,10 +29,14 @@ export class GoodController {
         @Query('sort') sort: string = 'down_price',
         @Query('minPrice') minPrice: number = 0,
         @Query('maxPrice') maxPrice: number = Infinity
-    ): Promise<GoodDto[]> {
+    ): Promise<TGoodsResponse> {
         try {
             const rawGoodList = await this.goodService.findMany(limit, offset, sort, minPrice, maxPrice);
-            return rawGoodList.map(rawItem => plainToInstance(GoodDto, rawItem, {excludeExtraneousValues: true}));
+            const pagesCount = await this.goodService.getPagesCount(limit);
+            return {
+                goods: rawGoodList.map(rawItem => plainToInstance(GoodDto, rawItem, {excludeExtraneousValues: true})),
+                pagesCount
+            }
         } catch (err) {
             console.error(err);
             throw err;
