@@ -32,7 +32,8 @@
 ```bash
 docker-compose up --build
 ```
-при условии, что Docker и Docker Compose уже установлены на вашем компьютере.
+при условии, что Docker и Docker Compose уже установлены на вашем компьютере API будет доступен по адресу: <br>
+http://localhost:5000/api
  <br>
 
 ## Контакты
