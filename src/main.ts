@@ -15,6 +15,7 @@ async function bootstrap() {
     app.useGlobalInterceptors(new LoggingInterceptor());
     app.useGlobalPipes(new ValidationPipe({transform: true}));
     app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+    app.enableCors();
 
     await app.listen(port);
 }
