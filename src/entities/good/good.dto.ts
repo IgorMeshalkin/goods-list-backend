@@ -1,4 +1,4 @@
-import {IsNumber, IsOptional, IsString, Min} from "class-validator";
+import {IsBoolean, IsNumber, IsOptional, IsString, Min} from "class-validator";
 import {Expose, Transform} from "class-transformer";
 
 export class GoodDto {
@@ -37,4 +37,10 @@ export class GoodDto {
     @IsString()
     @Expose()
     image?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    @Expose()
+    @Transform(({ value }) => value === 'true' || value === true)
+    imageWasRemoved?:boolean;
 }

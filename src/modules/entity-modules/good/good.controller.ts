@@ -32,7 +32,7 @@ export class GoodController {
     ): Promise<TGoodsResponse> {
         try {
             const rawGoodList = await this.goodService.findMany(limit, offset, sort, minPrice, maxPrice);
-            const pagesCount = await this.goodService.getPagesCount(limit);
+            const pagesCount = await this.goodService.getPagesCount(limit, minPrice, maxPrice);
             return {
                 goods: rawGoodList.map(rawItem => plainToInstance(GoodDto, rawItem, {excludeExtraneousValues: true})),
                 pagesCount

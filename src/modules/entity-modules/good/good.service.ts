@@ -60,9 +60,32 @@ export class GoodService {
     /**
      * returns total pages count for pagination
      */
-    async getPagesCount(limit:number): Promise<number> {
-        const totalCount = await this.goodRepository.count({where: {isDeleted: false}});
-        return Math.ceil(totalCount / limit);
+    async getPagesCount(limit: number, minPrice: number, maxPrice: number): Promise<number> {
+        // creates query
+        let query = this.goodRepository.createQueryBuilder('good')
+            .select('COUNT(*)', 'count')
+            .where('"good"."is_deleted" = false');
+
+        // adds minPrice parameter to query
+        if (minPrice) {
+            query = query.andWhere(
+                `CASE WHEN "good"."discounted_price" IS NOT NULL THEN "good"."discounted_price" ELSE "good"."price" END >= :minPrice`,
+                { minPrice }
+            );
+        }
+
+        // adds maxPrice parameter to query
+        if (maxPrice !== Infinity) {
+            query = query.andWhere(
+                `CASE WHEN "good"."discounted_price" IS NOT NULL THEN "good"."discounted_price" ELSE "good"."price" END <= :maxPrice`,
+                { maxPrice }
+            );
+        }
+
+        // executes query
+        const { count } = await query.getRawOne();
+        // returns result
+        return Math.ceil(Number(count) / limit);
     }
 
     /**
@@ -102,7 +125,7 @@ export class GoodService {
 
         // tries to delete updatable good's image and update image field
         // if file deleting
-        if (existedGood.image && !file) {
+        if (existedGood.image && goodDto.imageWasRemoved) {
             await this.fileService.deleteImage(existedGood.image);
             existedGood.image = null;
         }
