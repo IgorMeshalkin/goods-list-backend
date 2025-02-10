@@ -19,5 +19,5 @@ export class Good extends BaseEntity {
     article : string;
 
     @Column({ type: 'varchar', nullable: true })
-    image?: string;
+    image?: string | null;
 }

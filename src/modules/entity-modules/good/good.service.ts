@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+import {Column, Repository} from 'typeorm';
 import {Good} from "../../../entities/good/good.entity";
 import {GoodDto} from "../../../entities/good/good.dto";
 import {plainToInstance} from "class-transformer";
@@ -100,7 +100,14 @@ export class GoodService {
             throw new NotFoundException(`Good with uuid: ${paramsUuid} does not exist`);
         }
 
-        // tries to delete updatable good's image if it needs
+        // tries to delete updatable good's image and update image field
+        // if file deleting
+        if (existedGood.image && !file) {
+            await this.fileService.deleteImage(existedGood.image);
+            existedGood.image = null;
+        }
+
+        // tries to delete updatable good's image if file changing
         if (existedGood.image && file) {
             await this.fileService.deleteImage(existedGood.image);
         }
