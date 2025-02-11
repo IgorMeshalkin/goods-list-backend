@@ -38,5 +38,5 @@ http://localhost:5000/api
 
 ## Контакты
 Свзязаться со мной можно в Telegram:<br>
-@IgorMeshalkin
+👉 [@IgorMeshalkin](https://t.me/IgorMeshalkin)
 
